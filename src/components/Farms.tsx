@@ -63,6 +63,18 @@ function LockedFarm() {
   return <Farm imageSrc={lock} />;
 }
 
+interface TroughProps extends FarmProps {
+  callToAction: string;
+}
+
+function Trough(props : TroughProps) {
+  const { callToAction, children, ...otherProps } = props;
+  return <Farm { ...otherProps }>
+    { children }
+    <button>{ callToAction }</button>
+  </Farm>;
+}
+
 interface FarmsProps {
   degeneracy: number;
 }
@@ -74,15 +86,14 @@ function Farms(props : FarmsProps) {
       <p>Tend the hogs, eat HAM</p>
     </header>
     <div className="farms">
-      <Farm title="I Yam What I Yam" imageSrc={iYamWhatIYam}>
+      <Trough title="I Yam What I Yam" imageSrc={iYamWhatIYam} callToAction="Feed the hogs">
         <p>
           Stake and burn YAM, earn HAM. After 20M YAM, the hogs will be full, regardless of rebases.
         </p>
         <p>
-          Sorry, the hogs only eat Yam Classic.
+          Sorry, the hogs only eat <a href="https://etherscan.io/token/0x0e2298E3B3390e3b945a5456fBf59eCc3f55DA16" target="_blank" rel="noopener noreferrer">Yam Classic</a>.
         </p>
-        <button>Feed the hogs</button>
-      </Farm>
+      </Trough>
       <LockedFarm />
       <LockedFarm />
       <LockedFarm />
