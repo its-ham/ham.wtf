@@ -18,7 +18,7 @@ import pig from './images/pig.svg';
 import deadPig from './images/pig-dead.svg';
 import './App.scss';
 
-const launchDay = new Date('October 31, 2020 00:00:00');
+const launchDay = new Date('November 2, 2020 20:00:00');
 const prod = process.env.NODE_ENV === "production";
 
 
