@@ -7,7 +7,7 @@ module.exports = {
     addWebpackPlugin(
       new CopyWebpackPlugin({
         patterns: [
-          { from: path.resolve(__dirname, '../MANIFESTO.md'), to: 'public/' }
+          { from: path.resolve(__dirname, './MANIFESTO.md'), to: 'public/' }
         ],
       })
     )
