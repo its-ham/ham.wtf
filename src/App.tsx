@@ -12,6 +12,7 @@ import useEventListener from '@use-it/event-listener';
 
 import CountdownHeader from './components/CountdownHeader';
 import Manifesto from './components/Manifesto';
+import WalletArea from './components/WalletArea';
 import Farms from './components/Farms';
 import pig from './images/pig.svg';
 import deadPig from './images/pig-dead.svg';
@@ -20,9 +21,6 @@ import './App.scss';
 const launchDay = new Date('October 31, 2020 00:00:00');
 const prod = process.env.NODE_ENV === "production";
 
-function WalletArea() {
-  return <button>Connect Wallet</button>;
-}
 
 function Logo() {
   const [hovering, setHover] = useState(false);

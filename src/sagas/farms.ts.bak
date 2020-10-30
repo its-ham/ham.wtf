@@ -1,0 +1,5 @@
+// TODO when there's a provider, look for the registry
+// once we have the registry, pull all farms
+// once we have all farms, if we have a wallet, get your balance
+//   otherwise, wait until we have a wallet address, then show your balance
+//   get all balances for all stakeable farm tokens as well
