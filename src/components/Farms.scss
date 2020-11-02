@@ -70,34 +70,33 @@
       height: 800px;
       display: inline-block;
       background-color: white;
+
+      form {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        input {
+          line-height: 1.8em;
+
+          &:first-child {
+            flex-grow: 2;
+          }
+        }
+      }
+
+      .contract-details {
+        margin-top: 1em;
+        font-size: 0.7em;
+
+        > a {
+          color: $darkText;
+        }
+      }
     }
 
     > img {
       height: 100%;
     }
 
-    form {
-      display: flex;
-      flex-flow: row wrap;
-      align-items: center;
-      justify-content: space-evenly;
-
-      :first-child {
-        flex-grow: 1;
-      }
-
-      input {
-        line-height: 2.5;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-      }
-
-      > button {
-        padding: 0 15px;
-        border-radius: 10px;
-        margin: 0 5px;
-        min-width: 80px;
-      }
-    }
   }
 }

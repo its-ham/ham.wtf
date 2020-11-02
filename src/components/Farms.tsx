@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import useEventListener from '@use-it/event-listener';
 
+import EtherscanLink from "./EtherscanLink";
+
 import iYamWhatIYam from '../images/i-yam-what-i-yam.png';
 import notoriousPIG from '../images/notorious-pig.png';
 import loveFindsAWay from '../images/love-finds-a-way.png';
@@ -21,7 +23,7 @@ interface FarmProps {
 }
 
 function ZoomedFarm(props : FarmProps) {
-  const { imageSrc, title, subtitle, children } = props;
+  const { imageSrc, title, subtitle, contract, children } = props;
   const containerRef = useRef(null);
 
   const onContainerPressed = (event : any) => {
@@ -48,6 +50,7 @@ function ZoomedFarm(props : FarmProps) {
           { title && <h2>{props.title}</h2> }
           { subtitle && <h3>{props.subtitle}</h3> }
           { children }
+          { contract && contract !== "" && <span className="contract-details">Contract: <EtherscanLink address={contract} abbreviate={true} /></span> }
         </div>
       }
     </div>

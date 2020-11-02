@@ -1,6 +1,8 @@
 import React from 'react';
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
+import EtherscanLink from "./EtherscanLink";
+
 function abbreviateAddress(address : string) : string {
   return `${address.slice(0, 6)}...${address.slice(-2)}`;
 }
@@ -12,7 +14,7 @@ export default function WalletArea() {
   if (!!currentAccount) {
     return <span className="walletArea">
       🟢&nbsp;
-      <a href={`https://etherscan.io/address/${currentAccount}`}>{ abbreviateAddress(currentAccount) }</a>
+      <EtherscanLink address={currentAccount} abbreviate={true} />
       &nbsp;
       <button>Disconnect</button>
     </span>;
