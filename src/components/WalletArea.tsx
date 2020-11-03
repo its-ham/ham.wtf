@@ -3,10 +3,6 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
 import EtherscanLink from "./EtherscanLink";
 
-function abbreviateAddress(address : string) : string {
-  return `${address.slice(0, 6)}...${address.slice(-2)}`;
-}
-
 export default function WalletArea() {
   const { currentAccount } = useSelector((s : any) => s.wallet, shallowEqual);
   const dispatch = useDispatch();

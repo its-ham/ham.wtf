@@ -85,7 +85,14 @@ header nav {
   }
 }
 
-main > section > header {
-
-
+main > footer {
+  min-height: 7em;
+  margin-top: 7em;
+  color: $lightText;
+  font-size: 1.2em;
+  nav > a {
+    color: $lightText;
+    text-decoration: none;
+    margin: 15px;
+  }
 }

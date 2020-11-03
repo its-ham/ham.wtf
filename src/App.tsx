@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import classNames from 'classnames';
 import {
   BrowserRouter as Router,
   Redirect,
@@ -10,17 +9,12 @@ import {
 import Color from 'color';
 import useEventListener from '@use-it/event-listener';
 
-import CountdownHeader from './components/CountdownHeader';
 import Manifesto from './components/Manifesto';
 import WalletArea from './components/WalletArea';
 import Farms from './components/Farms';
 import pig from './images/pig.svg';
 import deadPig from './images/pig-dead.svg';
 import './App.scss';
-
-const launchDay = new Date('November 2, 2020 20:00:00');
-const prod = process.env.NODE_ENV === "production";
-
 
 function Logo() {
   const [hovering, setHover] = useState(false);
@@ -46,24 +40,21 @@ function Nav() {
 
 function App() {
   const [degen, setDegen] = useState(0.0);
-  const [dead, setDead] = useState(false);
 
   useEventListener("scroll", (e) => {
     const maxScroll = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight );
     setDegen(window.scrollY / maxScroll);
   });
 
-  const showApp = !(launchDay.getTime() > Date.now() && prod);
   const bg = Color('#fff7d6').mix(Color('#300c48'), degen * 1.4);
 
   return (
     <Router>
-      <main className={classNames('App', { dead })} style={(!dead ? { backgroundColor: bg.hex() } : {})}>
-        { showApp &&
-          <header>
-            <Nav />
-          </header>
-        }
+      <main className="App"
+            style={{ backgroundColor: bg.hex() }}>
+        <header>
+          <Nav />
+        </header>
         <Switch>
           <Route path="/farming">
             <Farms degeneracy={degen}/>
@@ -72,15 +63,15 @@ function App() {
             <Manifesto />
           </Route>
           <Route path="/">
-            { !showApp ?
-              <CountdownHeader
-                date={launchDay}
-                killPig={() => {
-                  setDead(true);
-                }}/> :
-              <Redirect to="/manifesto" /> }
+            <Redirect to="/farming" />
           </Route>
         </Switch>
+        <footer>
+          <nav>
+              <a href="https://github.com/its-ham/">Github</a>
+              <a href="https://twitter.com/hamburglar_1971">Twitter</a>
+          </nav>
+        </footer>
       </main>
     </Router>
   );
