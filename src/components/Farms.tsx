@@ -43,7 +43,7 @@ function ZoomedFarm(props : FarmProps) {
     className={classNames({zoomedFarm: true, dark: !!props.dark})}
     onClick={props.onClosePressed === undefined ? undefined : onContainerPressed}>
     <div className="zoomedFarmModal">
-      <a className="close" onClick={props.onClosePressed || undefined}>X</a>
+      <a className="close" onClick={props.onClosePressed || undefined}>&times;</a>
       <img src={imageSrc} alt="farm" />
       { (title || subtitle) &&
         <div className="sidebar">
@@ -61,8 +61,10 @@ function Farm(props : FarmProps) {
   const { imageSrc } = props;
   const [zoomed, setZoomed] = useState(false);
   return <>
-    <img src={imageSrc} onClick={() => setZoomed(true)} className="farm" alt="farm"/>
-    {zoomed && <ZoomedFarm onClosePressed={(e) => setZoomed(false)} {...props} />}
+    <li className="farm">
+      <img src={imageSrc} onClick={() => setZoomed(true)} alt="farm"/>
+      {zoomed && <ZoomedFarm onClosePressed={(e) => setZoomed(false)} {...props} />}
+    </li>
   </>;
 }
 
@@ -122,7 +124,7 @@ function Farms(props : FarmsProps) {
       <h1>Farm</h1>
       <p>Tend the hogs, eat HAM</p>
     </header>
-    <div className="farms">
+    <ul className="farms">
       <Trough title="I Yam What I Yam" contract="0x72cba355a6f104de8a78005cf5fffcbaef2a58f8" imageSrc={iYamWhatIYam} callToAction="Feed the hogs">
         <p>
           Stake and burn 2 YAM, earn 1 HAM. It's like musical chairs with sweet potatoes 🎵 🍠
@@ -172,7 +174,7 @@ function Farms(props : FarmsProps) {
       <LockedFarm />
       <LockedFarm />
       <LockedFarm />
-    </div>
+    </ul>
   </section>;
 }
 

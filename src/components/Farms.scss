@@ -3,14 +3,14 @@
 .farms {
   display: flex;
   flex-wrap: wrap;
-  justify-context: space-between;
+  justify-content: space-between;
 
   z-index: 0;
   position: relative;
 
   & > .farm {
-    flex-grow: 1;
-    flex: 40%;
+    display: block;
+    flex: 45% 0;
     margin: 20px;
     border-radius: 10%;
 
@@ -23,6 +23,11 @@
       margin: 50px;
     }
   }
+
+  .farm > img {
+    border-radius: 10%;
+    max-width: 100%;
+  }
 }
 
 .zoomedFarm {
@@ -34,11 +39,11 @@
   height: 100%;
   background-color: rgba(0,0,0, 0.45);
 
+  overflow: auto;
+  overscroll-behavior: contain;
+
   &.dark {
     color: darken($lightText, 10%);
-    // a.close {
-    //     color: darken($lightText, 10%);
-    // }
     > .zoomedFarmModal > .sidebar {
       background-color: $darkBackground;
     }
@@ -50,22 +55,33 @@
 
   > .zoomedFarmModal {
     height: 800px;
-    width: 800px;
+    width: 1100px;
     margin: 2em auto;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
 
     > a.close {
       z-index: 2;
       position: absolute;
+      left: calc(50% - 550px); // 600px being half the width of the modal
       font-size: 1.5em;
       font-weight: bold;
       margin: 1%;
       cursor: pointer;
+      height: 33px;
+      width: 33px;
+
+      &:hover {
+        background: black;
+        color: white;
+        border-radius: 10px;
+      }
     }
 
     > .sidebar {
-      position: fixed;
       font-size: 110%;
-      width: 400px;
       padding: 0 1em;
       height: 800px;
       display: inline-block;
@@ -73,14 +89,18 @@
 
       form {
         display: flex;
-        flex-flow: row wrap;
+        flex-flow: row nowrap;
         align-items: center;
         input {
           line-height: 1.8em;
 
           &:first-child {
-            flex-grow: 2;
+            flex-shrink: 2;
           }
+        }
+
+        button {
+          min-width: 100px;
         }
       }
 
@@ -96,7 +116,7 @@
 
     > img {
       height: 100%;
+      display: block;
     }
-
   }
 }
