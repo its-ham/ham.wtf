@@ -70,6 +70,7 @@ function App() {
           <nav>
               <a href="https://github.com/its-ham/">Github</a>
               <a href="https://twitter.com/hamburglar_1971">Twitter</a>
+              <a href="https://t.me/hamwtf">Telegram</a>
           </nav>
         </footer>
       </main>
