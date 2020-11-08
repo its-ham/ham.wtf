@@ -1,7 +1,8 @@
 import { put, all } from "redux-saga/effects";
 
 import { watchDefaultProvider } from "./chain";
-import { watchConnectWallet, watchDisconnectWallet } from "./wallet";
+import { watchConnectWallet, watchDisconnectWallet, watchSetCurrentAccount } from "./wallet";
+import { watchSetCurrentAccount as watchAccountForFarms, watchSetProvider as watchProviderForFarms } from "./farms";
 
 function* initialize() {
 	yield put({ type: "RETRIEVE_DEFAULT_PROVIDER" });
@@ -12,6 +13,9 @@ export default function* rootSaga() {
     initialize(),
     watchDefaultProvider(),
     watchConnectWallet(),
-    watchDisconnectWallet()
+    watchDisconnectWallet(),
+    watchSetCurrentAccount(),
+    watchAccountForFarms(),
+    watchProviderForFarms(),
   ])
 }

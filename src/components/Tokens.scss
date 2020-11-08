@@ -1,0 +1,18 @@
+.input-wrapper {
+  position: relative;
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  .max {
+    position: absolute;
+    display: block;
+    right: 10px;
+    top: 8px;
+    color: lightGray;
+  }
+
+  a.max {
+    color: blue;
+  }
+}
