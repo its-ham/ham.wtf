@@ -9,6 +9,7 @@ import { RootState } from "../reducers";
 
 import EtherscanLink, { TokenLink } from "./EtherscanLink";
 import { TokenAmountInput } from "./Tokens";
+import Countdown from "./Countdown";
 import { WalletButton } from "./WalletArea";
 
 import iYamWhatIYam from '../images/i-yam-what-i-yam.png';
@@ -20,7 +21,9 @@ import lock from '../images/lock.png';
 import "./Farms.scss";
 
 interface FarmProps {
+  callToAction?: string;
   contractAddress?: string;
+  disabled?: boolean;
   imageSrc: string;
   title?: string;
   subtitle?: string;
@@ -30,8 +33,13 @@ interface FarmProps {
 }
 
 function ZoomedFarm(props : FarmProps) {
-  const { imageSrc, title, subtitle, contractAddress, children } = props;
+  const { children, contractAddress, disabled, imageSrc, title, subtitle } = props;
   const containerRef = useRef(null);
+
+  const farm = useSelector((s : RootState) =>
+    s.farms.find(x => x.contractAddress === contractAddress), shallowEqual);
+
+  const endDate = farm && farm.startTime && farm.duration && new Date(farm.startTime.add(farm.duration).mul(1000).toNumber());
 
   const onContainerPressed = (event : any) => {
     if (event.target === containerRef.current &&
@@ -57,7 +65,27 @@ function ZoomedFarm(props : FarmProps) {
           { title && <h2>{props.title}</h2> }
           { subtitle && <h3>{props.subtitle}</h3> }
           { children }
-          { contractAddress && contractAddress !== "" && <span className="contract-details">Contract: <EtherscanLink address={contractAddress} abbreviate={true} /></span> }
+          <div className="farm-details">
+            <dl>
+              { endDate && <>
+                  <dt>Time remaining:</dt>
+                  <dd><Countdown date={endDate} /></dd>
+                </>
+              }
+              <dt>Contract:</dt>
+              <dd><EtherscanLink address={contractAddress || ""} abbreviate={true} /></dd>
+            </dl>
+          </div>
+          { !disabled &&
+            <form className="harvest-controls">
+              <button type="button" className="exit" disabled={ farm && (!farm.amountStaked || farm.amountStaked.eq(0)) }>
+                Exit 🏃🚪
+              </button>
+              <button type="button" className="harvest" disabled={ farm && (!farm.amountEarned || farm.amountEarned.eq(0)) }>
+                Harvest 🍖
+              </button>
+            </form>
+          }
         </div>
       }
     </div>
@@ -84,7 +112,7 @@ function secondsSinceEpoch() {
 }
 
 function BaseFarm(props : FarmProps) {
-  const { children, contractAddress, ...otherProps } = props;
+  const { callToAction, children, contractAddress, ...otherProps } = props;
   const farm = useSelector((s : RootState) =>
     s.farms.find(x => x.contractAddress === contractAddress), shallowEqual);
   const wallet = useSelector((s : RootState) => s.wallet);
@@ -92,50 +120,39 @@ function BaseFarm(props : FarmProps) {
   const token = farm ? farm.wrappedToken : null;
   const balance = token && wallet.balances[token.symbol] ? wallet.balances[token.symbol].balance : BigNumber.from(0);
 
-  const disabled = balance.lte(0) || (farm && farm.startTime && farm.startTime.gt(secondsSinceEpoch()));
+  const farmStarted = farm && farm.startTime && farm.startTime.lt(secondsSinceEpoch());
+  const farmEnded = farm && farm.startTime && farm.duration && farm.startTime.add(farm.duration).gt(secondsSinceEpoch());
+  const disabled = balance.lte(0) || !farmStarted || farmEnded;
 
-  return <Farm { ...otherProps }>
+  return <Farm disabled={disabled} { ...props }>
     { children }
     <form>
       <TokenAmountInput max={balance} decimals={2} />
       {
         wallet.currentAccount ?
-        <button disabled={!!disabled}>Stake</button> :
+        <button disabled={!!disabled}>{ callToAction || "Stake" }</button> :
         <WalletButton />
       }
     </form>
   </Farm>;
 }
 
-
-interface DamProps extends FarmProps {
-  // callToAction: string;
-}
+interface DamProps extends FarmProps {}
 
 function Dam(props : DamProps) {
   const { children, ...otherProps } = props;
-  return <Farm { ...otherProps }>
+  return <BaseFarm callToAction="Stake LP Tokens" { ...otherProps }>
     { children }
-    <form>
-      <input type="number" />
-      <button>Stake LP Tokens</button>
-    </form>
-  </Farm>;
+  </BaseFarm>;
 }
 
-interface TroughProps extends FarmProps {
-  callToAction: string;
-}
+interface TroughProps extends FarmProps {}
 
 function Trough(props : TroughProps) {
-  const { callToAction, children, ...otherProps } = props;
-  return <Farm { ...otherProps }>
+  const { children, ...otherProps } = props;
+  return <BaseFarm { ...otherProps }>
     { children }
-    <form>
-      <input type="number" />
-      <button>{ callToAction }</button>
-    </form>
-  </Farm>;
+  </BaseFarm>;
 }
 
 interface FarmsProps {
