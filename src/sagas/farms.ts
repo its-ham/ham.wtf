@@ -18,19 +18,19 @@ function* retrieveFarmInfo(provider : Provider, farm : Farm) {
   const abi = [
     "function _totalSupply() view returns (uint256)",
     "function rewardPerToken() public view returns (uint256)",
-    "function startTime() public view returns (uint256)",
-    "function duration() public view returns (uint256)",
+    "function periodFinish() public view returns (uint256)",
+    "function rewardRate() public view returns (uint256)",
     "function earned(address account) public view returns (uint256)",
     "function balanceOf(address account) public view returns (uint256)",
   ];
 
   if (!!farm.contractAddress) {
     const contract = new ethers.Contract(farm.contractAddress, abi, provider);
-    const [totalStaked, rewardPerToken, startTime, duration] = yield all([
+    const [totalStaked, rewardPerToken, periodFinish, rewardRate] = yield all([
       call([farm, contract._totalSupply]),
       call([farm, contract.rewardPerToken]),
-      call([farm, contract.startTime]),
-      call([farm, contract.duration]),
+      call([farm, contract.periodFinish]),
+      call([farm, contract.rewardRate]),
     ]);
 
     const amountEarned = account ? yield call([farm, contract.earned], account) : undefined;
@@ -38,7 +38,7 @@ function* retrieveFarmInfo(provider : Provider, farm : Farm) {
     yield put({
       type: "SET_FARM_INFO",
       payload: {
-        totalStaked, rewardPerToken, startTime, duration, amountEarned,
+        totalStaked, rewardPerToken, periodFinish, rewardRate, amountEarned,
         amountStaked, ...farm
       }
     });

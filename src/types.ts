@@ -26,6 +26,8 @@ export interface BaseFarm {
   rewardsRemaining?: BigNumber;
   startTime?: BigNumber;
   duration?: BigNumber;
+  rewardRate?: BigNumber;
+  periodFinish?: BigNumber;
 }
 
 export interface Trough extends BaseFarm {

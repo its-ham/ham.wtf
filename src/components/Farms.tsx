@@ -18,6 +18,7 @@ import loveFindsAWay from '../images/love-finds-a-way.png';
 import damPigs from '../images/dam-pigs.png';
 import summonSam from '../images/summon-sam.png';
 import lock from '../images/lock.png';
+import done from '../images/done.png';
 import "./Farms.scss";
 
 interface FarmProps {
@@ -95,16 +96,26 @@ function ZoomedFarm(props : FarmProps) {
 function Farm(props : FarmProps) {
   const { contractAddress, imageSrc } = props;
   const [zoomed, setZoomed] = useState(false);
+
+  const farm = useSelector((s : RootState) =>
+    s.farms.find(x => x.contractAddress === contractAddress), shallowEqual);
+  const finished = contractAddress === "0x72cba355a6f104de8a78005cf5fffcbaef2a58f8" || farm && ((farm.periodFinish && farm.periodFinish.lt(secondsSinceEpoch())) || (farm.startTime && farm.duration && farm.startTime.add(farm.duration).lt(secondsSinceEpoch())));
+
   return <>
-    <li className="farm">
+    <li className={classNames({ farm: true, dark: !!props.dark })} >
       <img src={imageSrc} onClick={() => setZoomed(true)} alt="farm"/>
+      {finished && <img src={done} onClick={() => setZoomed(true)} className="done" />}
       {zoomed && <ZoomedFarm onClosePressed={(e) => setZoomed(false)} {...props} />}
     </li>
   </>;
 }
 
 function LockedFarm() {
-  return <Farm imageSrc={lock} />;
+  return <>
+    <li className="farm">
+      <img src={lock} alt="farm"/>
+    </li>
+  </>;
 }
 
 function secondsSinceEpoch() {
@@ -112,7 +123,7 @@ function secondsSinceEpoch() {
 }
 
 function BaseFarm(props : FarmProps) {
-  const { callToAction, children, contractAddress, ...otherProps } = props;
+  const { callToAction, children, contractAddress } = props;
   const farm = useSelector((s : RootState) =>
     s.farms.find(x => x.contractAddress === contractAddress), shallowEqual);
   const wallet = useSelector((s : RootState) => s.wallet);

@@ -10,6 +10,7 @@
 
   & > li.farm {
     display: block;
+    position: relative;
     flex: 45% 0;
     margin: 20px;
     border-radius: 10%;
@@ -22,17 +23,29 @@
       flex: 100%;
       margin: 50px;
     }
-  }
 
-  .farm > img {
-    border-radius: 10%;
-    max-width: 100%;
+    & > img {
+      border-radius: 10%;
+      max-width: 100%;
+
+      &.done {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0.50;
+        z-index: 1;
+      }
+    }
+
+    &.dark > img.done {
+      filter: invert(100%);
+    }
   }
 }
 
 .zoomedFarm {
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   left: 0;
   top: 0;
   width: 100%;

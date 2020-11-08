@@ -32,6 +32,9 @@ export default {
         symbol: "YAMv1",
         decimal: 18
       },
+      duration: BigNumber.from(1250000),
+      startTime: BigNumber.from(1604188799),
+      periodFinish: BigNumber.from(1605534578),
     },
     {
       contractAddress: "0xfdb6f34019a0c29681eca78c4f8df5c2bf64fa27",
@@ -41,6 +44,9 @@ export default {
         symbol: "LINK",
         decimal: 18
       },
+      duration: BigNumber.from(625000),
+      startTime: BigNumber.from(1604188799),
+      periodFinish: BigNumber.from(1604909422),
     },
     {
       contractAddress: "0xf844c38c801ef4de4465ed4c963f2394700748f8",
@@ -50,6 +56,9 @@ export default {
         symbol: "wNXM",
         decimal: 18
       },
+      duration: BigNumber.from(625000),
+      startTime: BigNumber.from(1604188799),
+      periodFinish: BigNumber.from(1604909395),
     },
     {
       contractAddress: "0x36a5f370cd6d9ba660fbef0daf6ffb231c2a8e6d",
@@ -81,10 +90,13 @@ export default {
       contractAddress: "0x90f22dcff3cb8b762b8015b3624224964d491783",
       type: FarmType.Basic,
       wrappedToken: {
-        contractAddress: "0x90f22dcff3cb8b762b8015b3624224964d491783",
+        contractAddress: "0x419D48fFc4Cf75Ecaf4f87322eEcccc386A17C53",
         symbol: "SAM",
         decimal: 18
       },
+      duration: BigNumber.from(1250000),
+      periodFinish: BigNumber.from(1605534559),
+      startTime: BigNumber.from(1604188799),
     },
   ]
 };
