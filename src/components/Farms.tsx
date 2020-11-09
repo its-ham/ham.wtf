@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import { shallowEqual, useSelector } from 'react-redux'
+import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import useEventListener from '@use-it/event-listener';
 
 import { BigNumber } from 'ethers';
@@ -122,6 +122,27 @@ function secondsSinceEpoch() {
   return Math.round((new Date()).getTime() / 1000);
 }
 
+interface StakeProps {
+  contractAddress?: string;
+  account?: string;
+  disabled?: boolean;
+  amount: BigNumber;
+  children: any;
+}
+
+function StakeButton(props : StakeProps) {
+  const { amount, account, contractAddress, disabled, children } = props;
+
+  const dispatch = useDispatch();
+
+  return <button
+    type="button"
+    disabled={!!disabled}
+    onClick={() => dispatch({ type: "STAKE_FARM", payload: { account, amount, contractAddress }})}>
+    { children }
+  </button>;
+}
+
 function BaseFarm(props : FarmProps) {
   const { callToAction, children, contractAddress } = props;
   const farm = useSelector((s : RootState) =>
@@ -135,13 +156,18 @@ function BaseFarm(props : FarmProps) {
   const farmEnded = farm && farm.startTime && farm.duration && farm.startTime.add(farm.duration).gt(secondsSinceEpoch());
   const disabled = balance.lte(0) || !farmStarted || farmEnded;
 
+  const [amountToStake, setAmountToStake] = useState(BigNumber.from(0));
+
   return <Farm disabled={disabled} { ...props }>
     { children }
     <form>
-      <TokenAmountInput max={balance} decimals={2} />
+      <TokenAmountInput max={balance} decimals={2} onChange={(n : BigNumber) => setAmountToStake(n)} />
       {
         wallet.currentAccount ?
-        <button disabled={!!disabled}>{ callToAction || "Stake" }</button> :
+        <StakeButton
+          disabled={!!disabled}
+          amount={amountToStake}
+          contractAddress={contractAddress}>{ callToAction || "Stake" }</StakeButton> :
         <WalletButton />
       }
     </form>

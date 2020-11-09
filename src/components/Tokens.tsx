@@ -25,7 +25,7 @@ export function TokenAmountInput(props : TokenInputProps) {
   function onChange(e : any) {
     const v = e.target.value;
     setValue(v);
-    if (!!props.onChange) {
+    if (!!props.onChange && v !== "") {
       props.onChange(BigNumber.from(Big(v).mul(Big(10).pow(decimals)).toFixed(0)));
     }
   }
