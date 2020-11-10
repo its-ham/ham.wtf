@@ -3,7 +3,7 @@ import Web3Modal from "web3modal";
 
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
-import { Token } from "../types";
+import { Farm, Token } from "../types";
 import { RootState } from "../reducers";
 
 function* connectWallet() {
@@ -38,7 +38,7 @@ function* retrieveTokenBalance(provider : providers.Web3Provider, token : Token,
   ];
   const erc20 = new ethers.Contract(token.contractAddress, abi, provider);
   const balance = yield call([erc20, erc20.balanceOf], account);
-  yield put({ type: "SET_TOKEN_BALANCE", payload: { balance, ...token }});
+  yield put({ type: "SET_TOKEN_BALANCE", payload: { balance, token }});
 }
 
 function* retrieveETHBalance(provider : providers.Web3Provider, account : string) {
@@ -47,18 +47,33 @@ function* retrieveETHBalance(provider : providers.Web3Provider, account : string
 }
 
 function* retrieveBalances() {
-  let [tokenBalances, provider, account] = yield select((s : RootState) =>
+  let [tokenBalances, provider, account, farms] = yield select((s : RootState) =>
     [
       s.wallet.balances,
       s.chain.provider,
-      s.wallet.currentAccount
+      s.wallet.currentAccount,
+      s.farms,
     ]
   );
   yield retrieveETHBalance(provider, account);
+  const tokens = new Array<Token>();
+  const seen = new Set<string>();
+  farms.forEach((f : Farm) => {
+    if (f.wrappedToken && !seen.has(f.wrappedToken.contractAddress)) {
+      seen.add(f.wrappedToken.contractAddress);
+      tokens.push(f.wrappedToken);
+    }
+  });
+  const walletTokens = Object.entries(tokenBalances).map((value : [string, any]) => (value[1].token as Token));
+  walletTokens.forEach((t : Token) => {
+    if (!seen.has(t.contractAddress)) {
+      seen.add(t.contractAddress);
+      tokens.push(t);
+    }
+  });
   yield all(
-    Object.entries(tokenBalances).map((value : [string, any]) =>
-      retrieveTokenBalance(provider, value[1].token as Token, account)
-  ));
+    tokens.map((t : Token) => retrieveTokenBalance(provider, t, account))
+  );
 }
 
 export function* watchSetCurrentAccount() {

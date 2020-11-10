@@ -77,12 +77,12 @@ function ZoomedFarm(props : FarmProps) {
               <dd><EtherscanLink address={contractAddress || ""} abbreviate={true} /></dd>
             </dl>
           </div>
-          { !disabled &&
+          { ((farm && farm.amountStaked) || (farm && farm.amountEarned)) &&
             <form className="harvest-controls">
-              <button type="button" className="exit" disabled={ farm && (!farm.amountStaked || farm.amountStaked.eq(0)) }>
+              <button type="button" className="exit" disabled={ !farm || !farm.amountStaked || farm.amountStaked.eq(0) }>
                 Exit 🏃🚪
               </button>
-              <button type="button" className="harvest" disabled={ farm && (!farm.amountEarned || farm.amountEarned.eq(0)) }>
+              <button type="button" className="harvest" disabled={ !farm || !farm.amountEarned || farm.amountEarned.eq(0) }>
                 Harvest 🍖
               </button>
             </form>
@@ -133,22 +133,27 @@ interface StakeProps {
 function StakeButton(props : StakeProps) {
   const { amount, account, contractAddress, disabled, children } = props;
 
+  const wallet = useSelector((s : RootState) => s.wallet);
   const dispatch = useDispatch();
 
-  return <button
-    type="button"
-    disabled={!!disabled}
-    onClick={() => dispatch({ type: "STAKE_FARM", payload: { account, amount, contractAddress }})}>
-    { children }
-  </button>;
+  if (!!wallet.currentAccount) {
+    return <button
+      type="button"
+      disabled={!!disabled}
+      onClick={() => dispatch({ type: "STAKE_FARM", payload: { account, amount, contractAddress }})}>
+      { children }
+    </button>;
+  } else {
+    return <WalletButton />;
+  }
 }
 
 function BaseFarm(props : FarmProps) {
   const { callToAction, children, contractAddress } = props;
   const farm = useSelector((s : RootState) =>
     s.farms.find(x => x.contractAddress === contractAddress), shallowEqual);
-  const wallet = useSelector((s : RootState) => s.wallet);
 
+  const wallet = useSelector((s : RootState) => s.wallet);
   const token = farm ? farm.wrappedToken : null;
   const balance = token && wallet.balances[token.symbol] ? wallet.balances[token.symbol].balance : BigNumber.from(0);
 
@@ -162,14 +167,10 @@ function BaseFarm(props : FarmProps) {
     { children }
     <form>
       <TokenAmountInput max={balance} decimals={2} onChange={(n : BigNumber) => setAmountToStake(n)} />
-      {
-        wallet.currentAccount ?
-        <StakeButton
-          disabled={!!disabled}
-          amount={amountToStake}
-          contractAddress={contractAddress}>{ callToAction || "Stake" }</StakeButton> :
-        <WalletButton />
-      }
+      <StakeButton
+        disabled={!!disabled}
+        amount={amountToStake}
+        contractAddress={contractAddress}>{ callToAction || "Stake" }</StakeButton>
     </form>
   </Farm>;
 }

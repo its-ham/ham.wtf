@@ -22,17 +22,17 @@ export interface WalletState {
 export default function (state : WalletState = { balances: {} }, action : any) : WalletState {
   switch(action.type) {
     case "SET_TOKEN_BALANCE":
-      const { symbol, balance } = action.payload;
-      let tokenBalance = state.balances && state.balances[symbol];
-      if (tokenBalance) {
-        let balances = { ...state.balances };
-        balances[symbol].balance = balance;
-        return {
-          balances,
-          ...state
-        };
+      const { token, balance } = action.payload;
+      let balances = { ...state.balances };
+      if (state.balances[token.symbol]) {
+        balances[token.symbol].balance = balance;
+      } else {
+        balances[token.symbol] = { token, balance };
       }
-      return state;
+      return {
+        balances,
+        ...state
+      };
     case "SET_ETH_BALANCE":
       return { balance: action.payload.ethBalance, ...state };
     case "SET_WEB3MODAL":
