@@ -99,7 +99,12 @@
       display: inline-block;
       background-color: white;
 
-      form {
+      form > select:first-child {
+        width: 68%;
+        display: block;
+      }
+
+      .input-group {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;

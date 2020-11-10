@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { Provider } from "@ethersproject/abstract-provider";
 import { all, call, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 
-import { Farm } from "../types";
+import { Farm, FarmType, Token } from "../types";
 import { RootState } from "../reducers";
 
 const farmABI = [
@@ -14,6 +14,10 @@ const farmABI = [
   "function balanceOf(address account) public view returns (uint256)",
   "function stake(uint256 amount) public",
 ];
+
+const damABI = farmABI.concat([
+  "function stake(address uniswapPair, uint256 amount) public",
+]);
 
 const erc20ABI = [
   "function balanceOf(address account) public view returns (uint256)",
@@ -65,12 +69,39 @@ function* stakeFarm(action : any) {
   const wrappedToken = farm.wrappedToken;
   const erc20 = new ethers.Contract(wrappedToken.contractAddress, erc20ABI, signer);
   yield call([erc20, erc20.approve], farm.contractAddress, amount)
+  const contract = new ethers.Contract(farm.contractAddress, damABI, signer);
+  yield call([contract, contract.stakeAndUnwrap], amount);
+}
+
+function* buildDam(action : any) {
+  const { amount, lpTokenAddress, contractAddress } = action.payload;
+  const [account, signer, provider, farms] = yield select((s : RootState) => [s.wallet.currentAccount, s.wallet.signer, s.chain.provider, s.farms]);
+  const farm = farms.find((f : Farm) => f.contractAddress && f.contractAddress.toLowerCase() === contractAddress.toLowerCase() && f.type === FarmType.Dam);
+  if (!farm || !farm.wrappedToken) {
+    console.error(`Couldn't find dam ${ contractAddress } to build`);
+    return;
+  }
+  let acceptedLPTokenContracts = new Set<string>((farm.acceptedLPTokens || []).map((t : Token) => t.contractAddress));
+  if (!lpTokenAddress || !acceptedLPTokenContracts.has(lpTokenAddress)) {
+    console.error("Unsupported LP token");
+    return;
+  }
+  if (!account || !signer || !provider) {
+    console.error(`Can't stake without wallet`);
+    return;
+  }
+  const erc20 = new ethers.Contract(lpTokenAddress, erc20ABI, signer);
+  yield call([erc20, erc20.approve], farm.contractAddress, amount)
   const contract = new ethers.Contract(farm.contractAddress, farmABI, signer);
-  yield call([contract, contract.stake], amount);
+  yield call([contract, contract.stakeAndUnwrap], amount);
 }
 
 export function* watchStakeFarm() {
   yield takeEvery('STAKE_FARM', stakeFarm);
+}
+
+export function* watchBuildDam() {
+  yield takeEvery('BUILD_DAM', buildDam);
 }
 
 export function* watchSetCurrentAccount() {

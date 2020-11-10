@@ -5,6 +5,7 @@ import useEventListener from '@use-it/event-listener';
 
 import { BigNumber } from 'ethers';
 
+import { Dam as _Dam, FarmType, Token } from "../types";
 import { RootState } from "../reducers";
 
 import EtherscanLink, { TokenLink } from "./EtherscanLink";
@@ -126,23 +127,15 @@ interface StakeProps {
   contractAddress?: string;
   account?: string;
   disabled?: boolean;
-  amount: BigNumber;
   children: any;
+  onClick?: (arg0: any) => void;
 }
 
 function StakeButton(props : StakeProps) {
-  const { amount, account, contractAddress, disabled, children } = props;
+  const { account, contractAddress, disabled, children, onClick } = props;
 
-  const wallet = useSelector((s : RootState) => s.wallet);
-  const dispatch = useDispatch();
-
-  if (!!wallet.currentAccount) {
-    return <button
-      type="button"
-      disabled={!!disabled}
-      onClick={() => dispatch({ type: "STAKE_FARM", payload: { account, amount, contractAddress }})}>
-      { children }
-    </button>;
+  if (!!account) {
+    return <button type="button" disabled={!!disabled} onClick={onClick}> { children } </button>;
   } else {
     return <WalletButton />;
   }
@@ -161,16 +154,29 @@ function BaseFarm(props : FarmProps) {
   const farmEnded = farm && farm.startTime && farm.duration && farm.startTime.add(farm.duration).gt(secondsSinceEpoch());
   const disabled = balance.lte(0) || !farmStarted || farmEnded;
 
+  const dispatch = useDispatch();
   const [amountToStake, setAmountToStake] = useState(BigNumber.from(0));
 
   return <Farm disabled={disabled} { ...props }>
     { children }
     <form>
-      <TokenAmountInput max={balance} decimals={2} onChange={(n : BigNumber) => setAmountToStake(n)} />
-      <StakeButton
-        disabled={!!disabled}
-        amount={amountToStake}
-        contractAddress={contractAddress}>{ callToAction || "Stake" }</StakeButton>
+      <div className="input-group">
+        <TokenAmountInput max={balance} decimals={2} onChange={(n : BigNumber) => setAmountToStake(n)} />
+        <StakeButton
+          disabled={!!disabled}
+          account={wallet.currentAccount}
+          contractAddress={contractAddress}
+          onClick={() => dispatch({
+            type: "STAKE_FARM",
+            payload: {
+              account: wallet.currentAccount,
+              amount: amountToStake,
+              contractAddress
+            }
+          })}>
+          { callToAction || "Stake" }
+        </StakeButton>
+      </div>
     </form>
   </Farm>;
 }
@@ -178,10 +184,51 @@ function BaseFarm(props : FarmProps) {
 interface DamProps extends FarmProps {}
 
 function Dam(props : DamProps) {
-  const { children, ...otherProps } = props;
-  return <BaseFarm callToAction="Stake LP Tokens" { ...otherProps }>
+  const { callToAction, children, contractAddress } = props;
+  const farm : _Dam | undefined= useSelector((s : RootState) =>
+    s.farms.find(x => x.contractAddress === contractAddress && x.type === FarmType.Dam),
+    shallowEqual
+  );
+
+  const wallet = useSelector((s : RootState) => s.wallet);
+
+  const farmStarted = farm && farm.startTime && farm.startTime.lt(secondsSinceEpoch());
+  const farmEnded = farm && farm.startTime && farm.duration && farm.startTime.add(farm.duration).gt(secondsSinceEpoch());
+  const disabled = !farmStarted || farmEnded;
+
+  const dispatch = useDispatch();
+  const [amountToStake, setAmountToStake] = useState(BigNumber.from(0));
+  const [selectedLPToken, setSelectedLPToken] = useState("");
+
+  const balance = selectedLPToken !== "" && wallet.balances[selectedLPToken] ? wallet.balances[selectedLPToken].balance : BigNumber.from(0);
+
+  return <Farm disabled={disabled} { ...props }>
     { children }
-  </BaseFarm>;
+    <form>
+        <select>
+          { farm && farm.acceptedLPTokens && farm.acceptedLPTokens.map((t : Token) => {
+            return <option key={t.symbol} value={t.symbol}>{t.symbol} Uniswap LP</option>
+          })}
+        </select>
+        <div className="input-group">
+          <TokenAmountInput max={balance} decimals={2} onChange={(n : BigNumber) => setAmountToStake(n)} />
+          <StakeButton
+            disabled={!!disabled}
+            account={wallet.currentAccount}
+            contractAddress={contractAddress}
+            onClick={() => dispatch({
+              type: "BUILD_DAM",
+              payload: {
+                account: wallet.currentAccount,
+                amount: amountToStake,
+                contractAddress
+              }
+            })}>
+            { callToAction || "Stake LP Tokens" }
+          </StakeButton>
+        </div>
+    </form>
+  </Farm>;
 }
 
 interface TroughProps extends FarmProps {}

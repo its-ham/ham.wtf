@@ -25,7 +25,7 @@ export default {
   },
   farms: [
     {
-      contractAddress: "0x36a5f370cd6d9ba660fbef0daf6ffb231c2a8e6d",
+      contractAddress: "0x72cba355a6f104de8a78005cf5fffcbaef2a58f8",
       type: FarmType.Trough,
       wrappedToken: {
         contractAddress: "0x0e2298e3b3390e3b945a5456fbf59ecc3f55da16",
@@ -84,7 +84,9 @@ export default {
           symbol: "ETH/KEEP",
           decimal: 18
         },
-      ]
+      ],
+      duration: BigNumber.from(1250000),
+      startTime: BigNumber.from(1604188799),
     },
     {
       contractAddress: "0x90f22dcff3cb8b762b8015b3624224964d491783",
