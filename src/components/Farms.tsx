@@ -205,7 +205,7 @@ function Dam(props : DamProps) {
   return <Farm disabled={disabled} { ...props }>
     { children }
     <form>
-        <select>
+        <select onChange={(e) => setSelectedLPToken(e.target.value)} value={selectedLPToken}>
           { farm && farm.acceptedLPTokens && farm.acceptedLPTokens.map((t : Token) => {
             return <option key={t.symbol} value={t.symbol}>{t.symbol} Uniswap LP</option>
           })}

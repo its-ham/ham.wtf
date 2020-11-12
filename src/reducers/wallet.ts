@@ -1,13 +1,16 @@
 import { BigNumber, Signer } from "ethers";
 import Web3Modal from "web3modal";
+import { fromJS }  from "immutable";
 
 import { Token } from "../types";
 
+export interface TokenBalance {
+  balance: BigNumber,
+  token: Token,
+}
+
 export interface Balances {
-  [key: string] : {
-    balance: BigNumber,
-    token: Token,
-  };
+  [key: string] : TokenBalance;
 }
 
 export interface WalletState {
@@ -22,17 +25,9 @@ export interface WalletState {
 export default function (state : WalletState = { balances: {} }, action : any) : WalletState {
   switch(action.type) {
     case "SET_TOKEN_BALANCE":
-      const { token, balance } = action.payload;
-      let balances = { ...state.balances };
-      if (state.balances[token.symbol]) {
-        balances[token.symbol].balance = balance;
-      } else {
-        balances[token.symbol] = { token, balance };
-      }
-      return {
-        balances,
-        ...state
-      };
+      const { token } = action.payload;
+      const newTokenBal = fromJS(action.payload);
+      return fromJS(state).updateIn(["balances", token.symbol], (tokenBal : any) => tokenBal ? tokenBal.mergeDeep(newTokenBal) : newTokenBal).toJS() as WalletState;
     case "SET_ETH_BALANCE":
       return { balance: action.payload.ethBalance, ...state };
     case "SET_WEB3MODAL":
